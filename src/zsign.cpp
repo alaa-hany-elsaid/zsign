@@ -34,6 +34,8 @@ const struct option options[] = {
 	{"check", no_argument, NULL, 'C'},
 	{"quiet", no_argument, NULL, 'q'},
 	{"help", no_argument, NULL, 'h'},
+	{"no-embed-profile", no_argument, NULL, 'E'},
+
 	{}
 };
 
@@ -76,6 +78,7 @@ int main(int argc, char* argv[])
 	bool bForce = false;
 	bool bInstall = false;
 	bool bWeakInject = false;
+	bool bDontEmbedProfile = false;
 	bool bAdhoc = false;
 	bool bSHA256Only = false;
 	bool bCheckSignature = false;
@@ -115,6 +118,9 @@ int main(int argc, char* argv[])
 			break;
 		case 'a':
 			bAdhoc = true;
+			break;
+		case 'E':
+			bDontEmbedProfile = true;
 			break;
 		case 'p':
 			strPassword = optarg;
@@ -276,12 +282,15 @@ int main(int argc, char* argv[])
 	//sign
 	atimer.Reset();
 	ZBundle bundle;
-	bool bRet = bundle.SignFolder(&zsa, strFolder, strBundleId, strBundleVersion, strDisplayName, arrDylibFiles, bForce, bWeakInject, bEnableCache);
+	bool bRet = bundle.SignFolder(&zsa, strFolder, strBundleId, strBundleVersion, strDisplayName, arrDylibFiles, bForce, bWeakInject,bDontEmbedProfile, bEnableCache);
 	atimer.PrintResult(bRet, ">>> Signed %s!", bRet ? "OK" : "Failed");
 
 	//archive
 	if (bRet && !strOutputFile.empty()) {
 		size_t pos = bundle.m_strAppFolder.rfind("Payload");
+		if (string::npos == pos){
+		    pos = bundle.m_strAppFolder.rfind("payload");
+		}
 		if (string::npos != pos && pos > 0) {
 			atimer.Reset();
 			ZLog::PrintV(">>> Archiving: \t%s ... \n", strOutputFile.c_str());

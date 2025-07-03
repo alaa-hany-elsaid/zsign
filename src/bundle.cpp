@@ -501,6 +501,7 @@ bool ZBundle::SignFolder(ZSignAsset* pSignAsset,
 							const vector<string>& arrInjectDylibs,
 							bool bForce,
 							bool bWeakInject,
+							bool bDontEmbedProfile,
 							bool bEnableCache)
 {
 	m_bForceSign = bForce;
@@ -522,13 +523,16 @@ bool ZBundle::SignFolder(ZSignAsset* pSignAsset,
 		}
 	}
 
-	ZFile::RemoveFileV("%s/embedded.mobileprovision", m_strAppFolder.c_str());
-	if (!pSignAsset->m_strProvData.empty()) {
-		if (!ZFile::WriteFileV(pSignAsset->m_strProvData, "%s/embedded.mobileprovision", m_strAppFolder.c_str())) { // embedded.mobileprovision
-			ZLog::ErrorV(">>> Can't write embedded.mobileprovision!\n");
-			return false;
-		}
+    if (!bDontEmbedProfile){
+        ZFile::RemoveFileV("%s/embedded.mobileprovision", m_strAppFolder.c_str());
+        if (!pSignAsset->m_strProvData.empty()) {
+            if (!ZFile::WriteFileV(pSignAsset->m_strProvData, "%s/embedded.mobileprovision", m_strAppFolder.c_str())) { // embedded.mobileprovision
+                ZLog::ErrorV(">>> Can't write embedded.mobileprovision!\n");
+                return false;
+            }
+        }
 	}
+
 
 	if (!arrInjectDylibs.empty()) {
 		m_bForceSign = true;
