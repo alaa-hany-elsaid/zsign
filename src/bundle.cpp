@@ -238,11 +238,11 @@ void ZBundle::GetChangedFiles(jvalue& jvNode, vector<string>& arrChangedFiles)
 	}
 }
 
-void ZBundle::GetNodeChangedFiles(jvalue& jvNode)
+void ZBundle::GetNodeChangedFiles(jvalue& jvNode, bool bDontEmbedProfile)
 {
 	if (jvNode.has("folders")) {
 		for (size_t i = 0; i < jvNode["folders"].size(); i++) {
-			GetNodeChangedFiles(jvNode["folders"][i]);
+			GetNodeChangedFiles(jvNode["folders"][i] , bDontEmbedProfile);
 		}
 	}
 
@@ -252,7 +252,7 @@ void ZBundle::GetNodeChangedFiles(jvalue& jvNode)
 		jvNode["changed"].push_back(arrChangedFiles[i]);
 	}
 
-	if ("/" == jvNode["path"]) { // root
+	if ("/" == jvNode["path"] && !bDontEmbedProfile ) { // root
 		jvNode["changed"].push_back("embedded.mobileprovision");
 	}
 }
@@ -522,9 +522,8 @@ bool ZBundle::SignFolder(ZSignAsset* pSignAsset,
 			return false;
 		}
 	}
-
+    ZFile::RemoveFileV("%s/embedded.mobileprovision", m_strAppFolder.c_str());
     if (!bDontEmbedProfile){
-        ZFile::RemoveFileV("%s/embedded.mobileprovision", m_strAppFolder.c_str());
         if (!pSignAsset->m_strProvData.empty()) {
             if (!ZFile::WriteFileV(pSignAsset->m_strProvData, "%s/embedded.mobileprovision", m_strAppFolder.c_str())) { // embedded.mobileprovision
                 ZLog::ErrorV(">>> Can't write embedded.mobileprovision!\n");
@@ -561,7 +560,7 @@ bool ZBundle::SignFolder(ZSignAsset* pSignAsset,
 		if (!GetObjectsToSign(m_strAppFolder, jvRoot)) {
 			return false;
 		}
-		GetNodeChangedFiles(jvRoot);
+		GetNodeChangedFiles(jvRoot,bDontEmbedProfile);
 	} else {
 		jvRoot.read_from_file("./.zsign_cache/%s.json", strCacheName.c_str());
 	}
