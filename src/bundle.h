@@ -18,6 +18,7 @@ public:
 					const vector<string>& arrDylibFiles,
 					bool bForce,
 					bool bWeakInject,
+					bool bDontEmbedProfile,
 					bool bEnableCache);
 
 private:
