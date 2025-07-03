@@ -65,6 +65,7 @@ int usage()
 	ZLog::Print("-C, --check\t\tCheck if the file is signed.\n");
 	ZLog::Print("-q, --quiet\t\tQuiet operation.\n");
 	ZLog::Print("-v, --version\t\tShows version.\n");
+	ZLog::Print("-E, --no-embed-profile\tDon't generate embedded mobile provision.\n");
 	ZLog::Print("-h, --help\t\tShows help (this message).\n");
 
 	return -1;
@@ -98,7 +99,7 @@ int main(int argc, char* argv[])
 
 	int opt = 0;
 	int argslot = -1;
-	while (-1 != (opt = getopt_long(argc, argv, "dfEva2hiqwCc:k:m:o:p:e:b:n:z:l:t:r:",
+	while (-1 != (opt = getopt_long(argc, argv, "dfva2hiqwCc:k:m:o:p:e:b:n:z:l:t:r:E",
 		options, &argslot))) {
 		switch (opt) {
 		case 'd':
